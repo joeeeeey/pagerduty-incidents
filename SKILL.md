@@ -1,9 +1,9 @@
 ---
-name: pagerduty-ops
+name: pagerduty-incidents
 description: Inspect PagerDuty services, incidents and alert keys; preview or explicitly send incident updates and Events API actions.
 ---
 
-# PagerDuty Ops
+# PagerDuty Incidents
 
 Follow an incident from alert key to deliberate resolution.
 

@@ -1,4 +1,4 @@
 interface:
-  display_name: "PagerDuty Ops"
+  display_name: "PagerDuty Incidents"
   short_description: "Follow an incident from alert key to deliberate resolution."
-  default_prompt: "Use $pagerduty-ops to inspect the requested scope and report verified results."
+  default_prompt: "Use $pagerduty-incidents to inspect the requested scope and report verified results."

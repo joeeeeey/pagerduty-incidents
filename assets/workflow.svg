@@ -1,11 +1,115 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="944" height="342" viewBox="0 0 944 342" role="img" aria-labelledby="title desc">
-<title id="title">PagerDuty Ops</title><desc id="desc">Follow an incident from alert key to deliberate resolution. Inspect alert → Correlate key → Preview resolve.</desc>
-<style>text{font-family:system-ui,-apple-system,Segoe UI,sans-serif} .pulse{animation:flow 4s ease-in-out infinite} @keyframes flow{0%,100%{opacity:.35;transform:translateX(0)}50%{opacity:1;transform:translateX(540px)}} @media(prefers-reduced-motion:reduce){.pulse{animation:none}}</style>
-<rect width="944" height="342" rx="22" fill="#0b1222"/><path d="M0 1 H944" stroke="#4ade80" stroke-width="3" opacity=".65"/>
-<text x="42" y="46" fill="#4ade80" font-size="12" letter-spacing="3">AGENT SKILL / COMMUNITY EDITION</text>
-<text x="42" y="91" fill="#f8fafc" font-size="34" font-weight="700">PagerDuty Ops</text>
-<text x="42" y="124" fill="#9eb0ca" font-size="16">Follow an incident from alert key to deliberate resolution.</text>
-<rect x="42" y="160" width="260" height="108" rx="16" fill="#152038" stroke="#2c3d59"/><text x="64" y="192" fill="#4ade80" font-size="12" letter-spacing="2">01</text><text x="64" y="231" fill="#edf3ff" font-size="21" font-weight="600">Inspect alert</text><path d="M 307 214 H 334 m -7 -5 7 5 -7 5" stroke="#4ade80" stroke-width="2" fill="none"/><rect x="342" y="160" width="260" height="108" rx="16" fill="#152038" stroke="#2c3d59"/><text x="364" y="192" fill="#4ade80" font-size="12" letter-spacing="2">02</text><text x="364" y="231" fill="#edf3ff" font-size="21" font-weight="600">Correlate key</text><path d="M 607 214 H 634 m -7 -5 7 5 -7 5" stroke="#4ade80" stroke-width="2" fill="none"/><rect x="642" y="160" width="260" height="108" rx="16" fill="#152038" stroke="#2c3d59"/><text x="664" y="192" fill="#4ade80" font-size="12" letter-spacing="2">03</text><text x="664" y="231" fill="#edf3ff" font-size="21" font-weight="600">Preview resolve</text>
-<path d="M 62 287 H 882" stroke="#263953" stroke-width="2"/><rect class="pulse" x="64" y="285" width="280" height="4" rx="2" fill="#4ade80"/>
-<text x="42" y="321" fill="#90a3bf" font-size="12">CODEX / CLAUDE CODE / CURSOR</text><text x="901" y="321" text-anchor="end" fill="#90a3bf" font-size="12">PORTABLE CLI · EXPLICIT SCOPE</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="500" viewBox="0 0 1000 500" role="img" aria-labelledby="pd-title pd-desc">
+<title id="pd-title">PagerDuty Incidents</title>
+<desc id="pd-desc">Editorial timeline illustration: three alerts from one integration share a dedup key and fold into a single incident, an alert with the same key on another integration is shown as a separate incident, and a resolve action is drawn only as a preview that still needs the execute and confirm flags. Follow an incident from alert key to deliberate resolution.</desc>
+<style>
+.pd-serif{font-family:Georgia,"Iowan Old Style","Times New Roman",serif}
+.pd-s{font-family:"Avenir Next","Segoe UI","Helvetica Neue",Arial,sans-serif}
+.pd-m{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace}
+.pd-dot{animation:pd-dot 8s linear infinite}
+@keyframes pd-dot{0%{transform:translateX(0);opacity:1}70%{transform:translateX(330px);opacity:1}80%{transform:translateX(330px);opacity:0}99%{transform:translateX(0);opacity:0}100%{transform:translateX(0);opacity:1}}
+.pd-ring{opacity:0;transform-box:fill-box;transform-origin:50% 50%;animation:pd-ring 8s ease-out infinite both}
+.pd-r2{animation-delay:1.87s}.pd-r3{animation-delay:3.73s}
+@keyframes pd-ring{0%{transform:scale(1);opacity:.9}14%{transform:scale(2.6);opacity:0}100%{transform:scale(2.6);opacity:0}}
+.pd-flow{stroke-dasharray:9 91;animation:pd-flow 3s linear infinite}
+@keyframes pd-flow{from{stroke-dashoffset:0}to{stroke-dashoffset:-100}}
+.pd-gate{animation:pd-gate 3s ease-in-out infinite}
+@keyframes pd-gate{0%,100%{opacity:1}50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<rect width="1000" height="500" fill="#FFF3E3"/>
+
+<!-- masthead -->
+<text class="pd-serif" x="40" y="80" font-size="54" font-weight="700" font-style="italic" fill="#1B1423" letter-spacing="-1">PagerDuty <tspan fill="#FF4F3F">Incidents</tspan></text>
+<text class="pd-serif" x="40" y="112" font-size="20" font-style="italic" fill="#1B1423">Follow an incident from alert key to deliberate resolution.</text>
+<rect x="664" y="44" width="296" height="28" fill="none" stroke="#1B1423" stroke-width="2"/>
+<text class="pd-s" x="812" y="63" font-size="13" font-weight="800" fill="#1B1423" text-anchor="middle" letter-spacing=".4">ILLUSTRATIVE / SYNTHETIC DATA</text>
+<rect x="40" y="130" width="920" height="4" fill="#1B1423"/>
+
+<!-- lanes -->
+<rect x="40" y="146" width="600" height="68" fill="#FFE0BC"/>
+<rect x="40" y="224" width="600" height="52" fill="#FFEAD2"/>
+<g class="pd-s" fill="#1B1423">
+<text x="52" y="167" font-size="15" font-weight="800">Integration A</text>
+<text x="52" y="187" font-size="14" font-weight="700" fill="#D6301F" class="pd-m">dedup_key:</text>
+<text x="52" y="205" font-size="14" font-weight="700" class="pd-m">synthetic-demo</text>
+<text x="52" y="246" font-size="15" font-weight="800">Integration B</text>
+<text x="52" y="265" font-size="14" font-weight="700" class="pd-m">synthetic-demo</text>
+</g>
+
+<!-- dedup arcs -->
+<g fill="none" stroke="#FF4F3F" stroke-width="4" stroke-linecap="round">
+<path d="M270 166 Q325 136 380 166"/><path d="M380 166 Q435 136 490 166"/>
+</g>
+<g fill="none" stroke="#1B1423" stroke-width="4" stroke-linecap="round">
+<path class="pd-flow" pathLength="100" d="M270 166 Q325 136 380 166 Q435 136 490 166"/>
+</g>
+<!-- drop lines -->
+<g stroke="#1B1423" stroke-width="2" stroke-dasharray="4 5">
+<line x1="270" y1="184" x2="270" y2="305"/><line x1="380" y1="184" x2="380" y2="305"/><line x1="490" y1="184" x2="490" y2="305"/>
+</g>
+
+<!-- alerts -->
+<g fill="#FF4F3F" stroke="#1B1423" stroke-width="3"><circle cx="270" cy="170" r="14"/><circle cx="380" cy="170" r="14"/><circle cx="490" cy="170" r="14"/></g>
+<g fill="none" stroke="#FF4F3F" stroke-width="3"><circle class="pd-ring" cx="270" cy="170" r="14"/><circle class="pd-ring pd-r2" cx="380" cy="170" r="14"/><circle class="pd-ring pd-r3" cx="490" cy="170" r="14"/></g>
+<g class="pd-s" font-size="14" font-weight="800" fill="#fff" text-anchor="middle"><text x="270" y="175">1</text><text x="380" y="175">2</text><text x="490" y="175">3</text></g>
+<!-- other integration alert -->
+<circle cx="335" cy="250" r="12" fill="#fff" stroke="#1B1423" stroke-width="3" stroke-dasharray="5 4"/>
+<text class="pd-s" x="357" y="255" font-size="14" font-weight="800" fill="#1B1423">same key ≠ same incident</text>
+
+<!-- axis + incident spine -->
+<line x1="210" y1="316" x2="640" y2="316" stroke="#1B1423" stroke-width="3"/>
+<rect x="270" y="304" width="330" height="24" rx="12" fill="#FF4F3F" stroke="#1B1423" stroke-width="3"/>
+<text class="pd-s" x="285" y="321" font-size="14" font-weight="800" fill="#fff">1 incident · 3 alerts</text>
+<g class="pd-m" font-size="14" font-weight="700" fill="#1B1423" text-anchor="middle">
+<text x="270" y="352">09:02</text><text x="380" y="352">09:04</text><text x="490" y="352">09:06</text><text x="600" y="352">09:08</text>
+</g>
+<g stroke="#1B1423" stroke-width="2"><line x1="270" y1="328" x2="270" y2="338"/><line x1="380" y1="328" x2="380" y2="338"/><line x1="490" y1="328" x2="490" y2="338"/><line x1="600" y1="328" x2="600" y2="338"/></g>
+<!-- correlation dot -->
+<g class="pd-dot"><circle cx="270" cy="290" r="8" fill="#FFC83D" stroke="#1B1423" stroke-width="3"/><path d="M265 299 h10 l-5 6 z" fill="#1B1423"/></g>
+
+<!-- gate -->
+<line x1="640" y1="146" x2="640" y2="336" stroke="#1B1423" stroke-width="3" stroke-dasharray="3 7" stroke-linecap="round"/>
+<g class="pd-gate">
+<circle cx="640" cy="230" r="19" fill="#FFC83D" stroke="#1B1423" stroke-width="3"/>
+<rect x="631" y="229" width="18" height="13" rx="2" fill="#1B1423"/>
+<path d="M634 229 v-5 a6 6 0 0 1 12 0 v5" fill="none" stroke="#1B1423" stroke-width="3"/>
+</g>
+
+<!-- resolve preview card -->
+<rect x="668" y="146" width="292" height="160" fill="#fff" stroke="#FF4F3F" stroke-width="3" stroke-dasharray="10 6"/>
+<rect x="668" y="146" width="292" height="34" fill="#FF4F3F"/>
+<text class="pd-s" x="684" y="169" font-size="15" font-weight="800" fill="#fff" letter-spacing="1.5">RESOLVE · PREVIEW</text>
+<g class="pd-m" fill="#1B1423">
+<text x="684" y="206" font-size="15" font-weight="800">events resolve</text>
+<text x="684" y="228" font-size="14" font-weight="700">--dedup-key synthetic-demo</text>
+</g>
+<text class="pd-s" x="684" y="252" font-size="14" font-weight="700" fill="#D6301F">Dry run: nothing sent yet</text>
+<g fill="#fff" stroke="#1B1423" stroke-width="2.5"><rect x="684" y="266" width="15" height="15"/><rect x="800" y="266" width="15" height="15"/></g>
+<g class="pd-m" font-size="14" font-weight="700" fill="#1B1423"><text x="706" y="279">--execute</text><text x="822" y="279">--confirm</text></g>
+<text class="pd-s" x="684" y="298" font-size="13" font-weight="700" fill="#5B4A63">batch resolve needs both</text>
+
+<!-- key map -->
+<rect x="40" y="372" width="920" height="3" fill="#1B1423"/>
+<rect x="40" y="388" width="290" height="84" fill="#fff" stroke="#1B1423" stroke-width="2.5"/>
+<rect x="40" y="388" width="104" height="24" fill="#1B1423"/>
+<text class="pd-s" x="92" y="405" font-size="13" font-weight="800" fill="#FFC83D" text-anchor="middle" letter-spacing="1.5">REST READ</text>
+<text class="pd-m" x="54" y="438" font-size="16" font-weight="800" fill="#1B1423">alert_key</text>
+<text class="pd-s" x="54" y="460" font-size="14" fill="#1B1423">from the incident's alerts</text>
+
+<rect x="410" y="388" width="290" height="84" fill="#fff" stroke="#1B1423" stroke-width="2.5"/>
+<rect x="410" y="388" width="150" height="24" fill="#FF4F3F"/>
+<text class="pd-s" x="485" y="405" font-size="13" font-weight="800" fill="#fff" text-anchor="middle" letter-spacing="1.5">EVENTS ACTION</text>
+<text class="pd-m" x="424" y="438" font-size="16" font-weight="800" fill="#1B1423">dedup_key</text>
+<text class="pd-s" x="424" y="460" font-size="14" fill="#1B1423">for ack or resolve</text>
+
+<!-- chain link -->
+<circle cx="370" cy="430" r="34" fill="#FFC83D" stroke="#1B1423" stroke-width="3"/>
+<g fill="none" stroke="#1B1423" stroke-width="5">
+<rect x="347" y="418" width="30" height="22" rx="11"/><rect x="363" y="418" width="30" height="22" rx="11" stroke="#D6301F"/>
+</g>
+
+<!-- credentials note -->
+<text class="pd-serif" x="726" y="414" font-size="17" font-style="italic" font-weight="700" fill="#1B1423">Two credentials,</text>
+<text class="pd-serif" x="726" y="436" font-size="17" font-style="italic" font-weight="700" fill="#1B1423">kept separate.</text>
+<text class="pd-s" x="726" y="460" font-size="14" fill="#1B1423">HTTP 202 = accepted. Re-read.</text>
 </svg>

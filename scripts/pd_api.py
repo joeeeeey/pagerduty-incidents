@@ -17,7 +17,7 @@ from typing import Any
 
 REST_API_HOST = "api.pagerduty.com"
 EVENTS_API_URL = "https://events.pagerduty.com/v2/enqueue"
-USER_AGENT = "pagerduty-ops/1.0"
+USER_AGENT = "pagerduty-incidents/1.0"
 
 
 def _eprint(*args: object) -> None:
