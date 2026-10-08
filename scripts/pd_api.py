@@ -27,8 +27,6 @@ def _eprint(*args: object) -> None:
 # ---------- secrets ----------
 
 
-
-
 def _resolve_api_key():
     return secret("PAGERDUTY_API_KEY", "PAGERDUTY_API_KEY_FILE")
 
@@ -38,15 +36,21 @@ def _resolve_routing_key():
 
 
 def _rest_get(path, params=None, *, timeout_s=30):
-    status, data = request(api_url("https://" + REST_API_HOST, path, params), headers={"Authorization":"Token token=" + _resolve_api_key(), "Accept":"application/vnd.pagerduty+json;version=2"}, timeout=timeout_s)
+    status, data = request(
+        api_url("https://" + REST_API_HOST, path, params),
+        headers={
+            "Authorization": "Token token=" + _resolve_api_key(),
+            "Accept": "application/vnd.pagerduty+json;version=2",
+        },
+        timeout=timeout_s,
+    )
     return status, json.dumps(data)
 
 
-
-
-
 def _events_post(payload, *, timeout_s=15):
-    status, data = request(EVENTS_API_URL, method="POST", body=payload, timeout=timeout_s)
+    status, data = request(
+        EVENTS_API_URL, method="POST", body=payload, timeout=timeout_s
+    )
     return status, json.dumps(data)
 
 
@@ -79,21 +83,28 @@ def _parse_kv_pairs(pairs: list[str]) -> dict[str, str]:
 
 # ---------- read commands ----------
 
+
 def _cmd_validate(args: argparse.Namespace) -> int:
     status, body = _rest_get("/users/me")
     if status == 200:
         try:
             data = json.loads(body)
             user = data.get("user", {})
-            print(json.dumps({
-                "valid": True,
-                "user": {
-                    "id": user.get("id"),
-                    "name": user.get("name"),
-                    "email": user.get("email"),
-                    "role": user.get("role"),
-                },
-            }, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {
+                        "valid": True,
+                        "user": {
+                            "id": user.get("id"),
+                            "name": user.get("name"),
+                            "email": user.get("email"),
+                            "role": user.get("role"),
+                        },
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
             return 0
         except Exception:
             pass
@@ -122,11 +133,16 @@ def _cmd_services_list(args: argparse.Namespace) -> int:
         try:
             data = json.loads(body)
             for s in data.get("services", []):
-                integrations = ", ".join(
-                    f"{i.get('summary','?')} ({i.get('type','?')})"
-                    for i in s.get("integrations", [])
-                ) or "-"
-                print(f"{s['id']} | {s.get('status','?'):10} | {s['name']} | integrations: {integrations}")
+                integrations = (
+                    ", ".join(
+                        f"{i.get('summary', '?')} ({i.get('type', '?')})"
+                        for i in s.get("integrations", [])
+                    )
+                    or "-"
+                )
+                print(
+                    f"{s['id']} | {s.get('status', '?'):10} | {s['name']} | integrations: {integrations}"
+                )
             return 0
         except Exception:
             pass
@@ -169,11 +185,16 @@ def _cmd_incidents_list(args: argparse.Namespace) -> int:
         try:
             data = json.loads(body)
             for i in data.get("incidents", []):
-                assignees = ", ".join(
-                    a.get("assignee", {}).get("summary", "?")
-                    for a in i.get("assignments", [])
-                ) or "-"
-                print(f"{i['id']} | {i.get('status','?'):12} | {i.get('urgency','?'):5} | {i.get('created_at','')[:19]} | {i.get('title','')[:70]} | {assignees}")
+                assignees = (
+                    ", ".join(
+                        a.get("assignee", {}).get("summary", "?")
+                        for a in i.get("assignments", [])
+                    )
+                    or "-"
+                )
+                print(
+                    f"{i['id']} | {i.get('status', '?'):12} | {i.get('urgency', '?'):5} | {i.get('created_at', '')[:19]} | {i.get('title', '')[:70]} | {assignees}"
+                )
             return 0
         except Exception:
             pass
@@ -200,9 +221,13 @@ def _cmd_incidents_alerts(args: argparse.Namespace) -> int:
         try:
             data = json.loads(body)
             for a in data.get("alerts", []):
-                print(f"  alert_id={a['id']} alert_key={a.get('alert_key')} status={a.get('status','?')}")
+                print(
+                    f"  alert_id={a['id']} alert_key={a.get('alert_key')} status={a.get('status', '?')}"
+                )
             if not data.get("alerts"):
-                _eprint("(no alerts on this incident — it may have been created directly, not via Events API)")
+                _eprint(
+                    "(no alerts on this incident — it may have been created directly, not via Events API)"
+                )
             return 0
         except Exception:
             pass
@@ -214,9 +239,17 @@ def _cmd_incidents_alerts(args: argparse.Namespace) -> int:
 
 # ---------- write commands: Events API v2 ----------
 
-def _build_events_payload(action: str, *, routing_key: str, dedup_key: str,
-                           summary: str | None = None, severity: str | None = None,
-                           source: str | None = None, custom_details: dict | None = None) -> dict[str, Any]:
+
+def _build_events_payload(
+    action: str,
+    *,
+    routing_key: str,
+    dedup_key: str,
+    summary: str | None = None,
+    severity: str | None = None,
+    source: str | None = None,
+    custom_details: dict | None = None,
+) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "routing_key": routing_key,
         "event_action": action,
@@ -242,7 +275,7 @@ def _redact_payload_for_preview(payload):
 
 def _events_dispatch(action: str, args: argparse.Namespace) -> int:
     try:
-        routing_key = (_resolve_routing_key() if args.execute else "[REDACTED]")
+        routing_key = _resolve_routing_key() if args.execute else "[REDACTED]"
     except (SafeError, ValueError, OSError) as e:
         _eprint(str(e))
         return 2
@@ -267,8 +300,14 @@ def _events_dispatch(action: str, args: argparse.Namespace) -> int:
         _eprint(str(e))
         return 2
 
-    print(f"=== Events API v2 {action} (dry-run)" + ("" if args.execute else "; re-run with --execute to send") + " ===")
-    print(json.dumps(_redact_payload_for_preview(payload), ensure_ascii=False, indent=2))
+    print(
+        f"=== Events API v2 {action} (dry-run)"
+        + ("" if args.execute else "; re-run with --execute to send")
+        + " ==="
+    )
+    print(
+        json.dumps(_redact_payload_for_preview(payload), ensure_ascii=False, indent=2)
+    )
 
     if not args.execute:
         return 0
@@ -295,7 +334,7 @@ def _cmd_events_acknowledge(args: argparse.Namespace) -> int:
 def _cmd_events_batch_resolve(args: argparse.Namespace) -> int:
     """Batch-resolve: one dedup_key per line (# = comment, blank line = skip)."""
     try:
-        routing_key = (_resolve_routing_key() if args.execute else "[REDACTED]")
+        routing_key = _resolve_routing_key() if args.execute else "[REDACTED]"
     except (SafeError, ValueError, OSError) as e:
         _eprint(str(e))
         return 2
@@ -314,7 +353,11 @@ def _cmd_events_batch_resolve(args: argparse.Namespace) -> int:
     if not keys or len(keys) > 100:
         raise SafeError("Batch must contain 1 to 100 unique dedup keys")
 
-    print(f"=== batch-resolve: {len(keys)} dedup_keys" + ("" if args.execute else "; re-run with --execute --confirm to send") + " ===")
+    print(
+        f"=== batch-resolve: {len(keys)} dedup_keys"
+        + ("" if args.execute else "; re-run with --execute --confirm to send")
+        + " ==="
+    )
     for k in keys:
         print(f"  dedup_key: {k}")
 
@@ -337,6 +380,7 @@ def _cmd_events_batch_resolve(args: argparse.Namespace) -> int:
 
 # ---------- write command: REST incidents update (alternative path) ----------
 
+
 def _cmd_incidents_update(args: argparse.Namespace) -> int:
     """Update incident(s) via REST API (alternative to Events API resolve).
     Requires From header with an email of a PagerDuty user; pass via --from."""
@@ -349,7 +393,11 @@ def _cmd_incidents_update(args: argparse.Namespace) -> int:
     if args.resolution:
         body_obj["incident"]["resolution"] = args.resolution
 
-    print(f"=== PUT /incidents/{args.incident_id} (dry-run)" + ("" if args.execute else "; re-run with --execute to send") + " ===")
+    print(
+        f"=== PUT /incidents/{args.incident_id} (dry-run)"
+        + ("" if args.execute else "; re-run with --execute to send")
+        + " ==="
+    )
     print(json.dumps(scrub(body_obj), ensure_ascii=False, indent=2))
 
     if not args.execute:
@@ -360,7 +408,16 @@ def _cmd_incidents_update(args: argparse.Namespace) -> int:
     if not from_email:
         _eprint("REST incident update requires --from EMAIL (or PD_FROM_EMAIL env)")
         return 2
-    status, data = request(api_url("https://" + REST_API_HOST, "/incidents/" + args.incident_id), method="PUT", body=body_obj, headers={"Authorization":"Token token=" + api_key, "From":from_email, "Accept":"application/vnd.pagerduty+json;version=2"})
+    status, data = request(
+        api_url("https://" + REST_API_HOST, "/incidents/" + args.incident_id),
+        method="PUT",
+        body=body_obj,
+        headers={
+            "Authorization": "Token token=" + api_key,
+            "From": from_email,
+            "Accept": "application/vnd.pagerduty+json;version=2",
+        },
+    )
     body = json.dumps(data)
 
     print(f"HTTP {status}")
@@ -370,12 +427,15 @@ def _cmd_incidents_update(args: argparse.Namespace) -> int:
 
 # ---------- parser ----------
 
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="pd_api.py",
         description="PagerDuty REST + Events API direct CLI (read + write, dry-run by default)",
     )
-    p.add_argument("--raw", action="store_true", help="print raw response (skip JSON pretty-print)")
+    p.add_argument(
+        "--raw", action="store_true", help="print raw response (skip JSON pretty-print)"
+    )
 
     sp = p.add_subparsers(dest="cmd", required=True)
 
@@ -386,7 +446,9 @@ def build_parser() -> argparse.ArgumentParser:
     # generic GET escape hatch
     sp_get = sp.add_parser("get", help="raw GET on any REST path, e.g. 'get /teams'")
     sp_get.add_argument("path", help="API path, must start with '/'")
-    sp_get.add_argument("--param", action="append", help="query param key=value, repeatable")
+    sp_get.add_argument(
+        "--param", action="append", help="query param key=value, repeatable"
+    )
     sp_get.set_defaults(func=_cmd_get)
 
     # services
@@ -395,19 +457,27 @@ def build_parser() -> argparse.ArgumentParser:
     sp_s_list = sp_services_sub.add_parser("list", help="list services")
     sp_s_list.add_argument("--query", help="filter by name/query string")
     sp_s_list.add_argument("--limit", type=int, default=25)
-    sp_s_list.add_argument("--param", action="append", help="extra query param key=value")
-    sp_s_list.add_argument("--summary", action="store_true", help="compact one-line-per-service output")
+    sp_s_list.add_argument(
+        "--param", action="append", help="extra query param key=value"
+    )
+    sp_s_list.add_argument(
+        "--summary", action="store_true", help="compact one-line-per-service output"
+    )
     sp_s_list.set_defaults(func=_cmd_services_list)
     sp_s_get = sp_services_sub.add_parser("get", help="get a specific service")
     sp_s_get.add_argument("service_id")
     sp_s_get.set_defaults(func=_cmd_services_get)
 
     # incidents
-    sp_incidents = sp.add_parser("incidents", help="PagerDuty incidents (read + update)")
+    sp_incidents = sp.add_parser(
+        "incidents", help="PagerDuty incidents (read + update)"
+    )
     sp_incidents_sub = sp_incidents.add_subparsers(dest="sub", required=True)
 
     sp_i_list = sp_incidents_sub.add_parser("list", help="list incidents")
-    sp_i_list.add_argument("--service-id", help="filter by service id (provider service ID)")
+    sp_i_list.add_argument(
+        "--service-id", help="filter by service id (provider service ID)"
+    )
     sp_i_list.add_argument(
         "--statuses",
         help="comma-separated, e.g. triggered,acknowledged,resolved (default: open only)",
@@ -416,8 +486,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp_i_list.add_argument("--since", help="ISO8601 start time (optional)")
     sp_i_list.add_argument("--until", help="ISO8601 end time (optional)")
     sp_i_list.add_argument("--limit", type=int, default=25)
-    sp_i_list.add_argument("--param", action="append", help="extra query param key=value")
-    sp_i_list.add_argument("--summary", action="store_true", help="compact one-line-per-incident output")
+    sp_i_list.add_argument(
+        "--param", action="append", help="extra query param key=value"
+    )
+    sp_i_list.add_argument(
+        "--summary", action="store_true", help="compact one-line-per-incident output"
+    )
     sp_i_list.set_defaults(func=_cmd_incidents_list)
 
     sp_i_get = sp_incidents_sub.add_parser("get", help="get one incident")
@@ -429,7 +503,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="list alerts on an incident; alert_key == Events v2 dedup_key",
     )
     sp_i_alerts.add_argument("incident_id")
-    sp_i_alerts.add_argument("--summary", action="store_true", default=True, help="one-line output (default on)")
+    sp_i_alerts.add_argument(
+        "--summary",
+        action="store_true",
+        default=True,
+        help="one-line output (default on)",
+    )
     sp_i_alerts.set_defaults(func=_cmd_incidents_alerts)
 
     sp_i_update = sp_incidents_sub.add_parser(
@@ -437,35 +516,72 @@ def build_parser() -> argparse.ArgumentParser:
         help="REST PUT /incidents/{id} (alternative to Events v2 resolve). Dry-run unless --execute.",
     )
     sp_i_update.add_argument("incident_id")
-    sp_i_update.add_argument("--status", choices=["acknowledged", "resolved"], required=True)
-    sp_i_update.add_argument("--resolution", help="resolution text (status=resolved only)")
-    sp_i_update.add_argument("--from", dest="from_email", help="PagerDuty user email for 'From' header (or PD_FROM_EMAIL env)")
-    sp_i_update.add_argument("--execute", action="store_true", help="actually send; without this flag it is a dry-run")
+    sp_i_update.add_argument(
+        "--status", choices=["acknowledged", "resolved"], required=True
+    )
+    sp_i_update.add_argument(
+        "--resolution", help="resolution text (status=resolved only)"
+    )
+    sp_i_update.add_argument(
+        "--from",
+        dest="from_email",
+        help="PagerDuty user email for 'From' header (or PD_FROM_EMAIL env)",
+    )
+    sp_i_update.add_argument(
+        "--execute",
+        action="store_true",
+        help="actually send; without this flag it is a dry-run",
+    )
     sp_i_update.set_defaults(func=_cmd_incidents_update)
 
     # events api v2 (write)
-    sp_events = sp.add_parser("events", help="PagerDuty Events API v2 (write). Dry-run unless --execute.")
+    sp_events = sp.add_parser(
+        "events", help="PagerDuty Events API v2 (write). Dry-run unless --execute."
+    )
     sp_events_sub = sp_events.add_subparsers(dest="sub", required=True)
 
-    def _common_events_args(ap: argparse.ArgumentParser, *, want_full_payload: bool) -> None:
+    def _common_events_args(
+        ap: argparse.ArgumentParser, *, want_full_payload: bool
+    ) -> None:
 
-        ap.add_argument("--dedup-key", required=True, help="unique key to de-duplicate / correlate trigger+resolve")
+        ap.add_argument(
+            "--dedup-key",
+            required=True,
+            help="unique key to de-duplicate / correlate trigger+resolve",
+        )
         if want_full_payload:
             ap.add_argument("--summary", help="short summary (trigger only)")
-            ap.add_argument("--severity", choices=["critical", "error", "warning", "info"], help="severity (trigger only)")
+            ap.add_argument(
+                "--severity",
+                choices=["critical", "error", "warning", "info"],
+                help="severity (trigger only)",
+            )
             ap.add_argument("--source", help="source hostname/service (trigger only)")
-            ap.add_argument("--custom-details", help="JSON blob for payload.custom_details (trigger only)")
-        ap.add_argument("--execute", action="store_true", help="actually send; without this flag it is a dry-run")
+            ap.add_argument(
+                "--custom-details",
+                help="JSON blob for payload.custom_details (trigger only)",
+            )
+        ap.add_argument(
+            "--execute",
+            action="store_true",
+            help="actually send; without this flag it is a dry-run",
+        )
 
-    sp_e_resolve = sp_events_sub.add_parser("resolve", help="send event_action=resolve for a dedup_key")
+    sp_e_resolve = sp_events_sub.add_parser(
+        "resolve", help="send event_action=resolve for a dedup_key"
+    )
     _common_events_args(sp_e_resolve, want_full_payload=False)
     sp_e_resolve.set_defaults(func=_cmd_events_resolve)
 
-    sp_e_trigger = sp_events_sub.add_parser("trigger", help="send event_action=trigger (requires summary/severity/source)")
+    sp_e_trigger = sp_events_sub.add_parser(
+        "trigger", help="send event_action=trigger (requires summary/severity/source)"
+    )
     _common_events_args(sp_e_trigger, want_full_payload=True)
     sp_e_trigger.set_defaults(func=_cmd_events_trigger)
 
-    sp_e_ack = sp_events_sub.add_parser("acknowledge", help="send event_action=acknowledge for a dedup_key")
+    sp_e_ack = sp_events_sub.add_parser(
+        "acknowledge", help="send event_action=acknowledge for a dedup_key"
+    )
     _common_events_args(sp_e_ack, want_full_payload=False)
     sp_e_ack.set_defaults(func=_cmd_events_acknowledge)
 
@@ -474,9 +590,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="batch resolve from a file of dedup_keys (one per line; # = comment). Requires --execute AND --confirm.",
     )
 
-    sp_e_batch.add_argument("--file", required=True, help="path to file with one dedup_key per line")
+    sp_e_batch.add_argument(
+        "--file", required=True, help="path to file with one dedup_key per line"
+    )
     sp_e_batch.add_argument("--execute", action="store_true", help="actually send")
-    sp_e_batch.add_argument("--confirm", action="store_true", help="extra guard on top of --execute for batch ops")
+    sp_e_batch.add_argument(
+        "--confirm",
+        action="store_true",
+        help="extra guard on top of --execute for batch ops",
+    )
     sp_e_batch.set_defaults(func=_cmd_events_batch_resolve)
 
     return p
